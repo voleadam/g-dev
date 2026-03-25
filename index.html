@@ -1098,5 +1098,70 @@ setTimeout(() => {
   <script src="js/webflow.js" type="text/javascript"></script>
   <script src="https://cdn.prod.website-files.com/gsap/3.14.2/gsap.min.js" type="text/javascript"></script>
   <script src="https://cdn.prod.website-files.com/gsap/3.14.2/SplitText.min.js" type="text/javascript"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Megkeressük az összes Webflow űrlapot az oldalon
+    var forms = document.querySelectorAll('.w-form form');
+
+    forms.forEach(function(form) {
+        // 1. Kikapcsoljuk a Webflow beépített űrlapkezelőjét, ami exportált oldalon hibát dobna
+        $(form).off('submit');
+
+        // 2. Saját beküldési logika hozzáadása
+        form.addEventListener('submit', function(event) {
+            event.preventDefault(); // Megakadályozzuk, hogy az oldal újratöltődjön
+
+            // IDE MÁSOLD BE A SAJÁT WEBHOOK URL-EDET!
+            var webhookUrl = "https://n8n.voleadam.hu/webhook/a9033e0c-9ead-4685-a9ee-b366a0ab4eee";
+
+            // Adatok kinyerése az űrlapból
+            var formData = new FormData(form);
+            var data = {};
+            formData.forEach(function(value, key) {
+                data[key] = value;
+            });
+
+            // Gomb szövegének megváltoztatása a küldés idejére
+            var submitBtn = form.querySelector('input[type="submit"]');
+            var originalBtnText = submitBtn.value;
+            submitBtn.value = "Küldés folyamatban...";
+
+            // Adatok elküldése a Webhooknak
+            fetch(webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(data) // JSON formátumba alakítjuk az adatokat
+            })
+            .then(function(response) {
+                if (response.ok) {
+                    // Siker esetén eltüntetjük az űrlapot és megjelenítjük a sikeres üzenetet (w-form-done)
+                    form.style.display = 'none';
+                    var successMessage = form.parentElement.querySelector('.w-form-done');
+                    if (successMessage) {
+                        successMessage.style.display = 'block';
+                    }
+                } else {
+                    throw new Error('Hiba a szerver válaszában');
+                }
+            })
+            .catch(function(error) {
+                console.error('Hiba történt:', error);
+                // Hiba esetén megjelenítjük a hibaüzenetet (w-form-fail)
+                var errorMessage = form.parentElement.querySelector('.w-form-fail');
+                if (errorMessage) {
+                    errorMessage.style.display = 'block';
+                }
+            })
+            .finally(function() {
+                // Visszaállítjuk a gomb eredeti szövegét (ha esetleg hiba volt és az űrlap látható marad)
+                submitBtn.value = originalBtnText;
+            });
+        });
+    });
+});
+</script>
 </body>
 </html>
