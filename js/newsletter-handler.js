@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function() {
     // Kifejezetten a hírlevél űrlapot keressük meg az ID-ja alapján
-    var newsletterForm = document.getElementById('newsletter-form');
+    var newsletterForm = document.getElementById('email-form');
 
     // Csak akkor fut le a kód, ha a hírlevél űrlap tényleg ott van az oldalon
     if (newsletterForm) {
