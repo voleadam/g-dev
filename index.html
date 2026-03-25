@@ -1103,36 +1103,35 @@ document.addEventListener("DOMContentLoaded", function() {
     var forms = document.querySelectorAll('.w-form form');
 
     forms.forEach(function(form) {
-        $(form).off('submit');
-
+        
+        // A 'true' paraméter a végén (Capture phase) biztosítja, hogy ez a kód fut le először!
         form.addEventListener('submit', function(event) {
+            // Teljesen leblokkoljuk a Webflow saját űrlapkezelőjét
             event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
 
-            // IDE MÁSOLD BE ÚJRA A SAJÁT WEBHOOK URL-EDET!
+            // IDE MÁSOLD BE A SAJÁT WEBHOOK URL-EDET!
             var webhookUrl = "https://n8n.voleadam.hu/webhook/a9033e0c-9ead-4685-a9ee-b366a0ab4eee";
-
-            var formData = new FormData(form);
-            var data = {};
-            formData.forEach(function(value, key) {
-                data[key] = value;
-            });
 
             var submitBtn = form.querySelector('input[type="submit"]');
             var originalBtnText = submitBtn.value;
             submitBtn.value = "Küldés folyamatban...";
 
-            // Adatok elküldése a Webhooknak no-cors módban
+            // Adatok kinyerése és átalakítása URL-kódolt (biztonságos) formátumba
+            var formData = new FormData(form);
+            var urlEncodedData = new URLSearchParams(formData).toString();
+
+            // Egyszerűsített küldés, ami nem vált ki CORS biztonsági hibát a böngészőből
             fetch(webhookUrl, {
                 method: 'POST',
-                mode: 'no-cors', // <-- EZ A KULCS: Kikapcsolja a szigorú böngészős ellenőrzést
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                body: JSON.stringify(data)
+                body: urlEncodedData
             })
-            .then(function() {
-                // Mivel a 'no-cors' miatt a böngésző nem lát bele a válaszba,
-                // ha idáig eljutott (nem volt hálózati megszakadás), sikeresnek tekintjük!
+            .then(function(response) {
+                // Sikeres küldés esetén
                 form.style.display = 'none';
                 var successMessage = form.parentElement.querySelector('.w-form-done');
                 if (successMessage) {
@@ -1140,8 +1139,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             })
             .catch(function(error) {
-                // Ide tényleg csak akkor jutunk, ha elmegy az internet, vagy elérhetetlen az URL
-                console.error('Hálózati hiba történt:', error);
+                console.error('Hiba a küldés során:', error);
                 var errorMessage = form.parentElement.querySelector('.w-form-fail');
                 if (errorMessage) {
                     errorMessage.style.display = 'block';
@@ -1150,7 +1148,8 @@ document.addEventListener("DOMContentLoaded", function() {
             .finally(function() {
                 submitBtn.value = originalBtnText;
             });
-        });
+
+        }, true); 
     });
 });
 </script>
