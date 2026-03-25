@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function() {
             event.stopImmediatePropagation();
 
             // Hírlevél webhook URL
-            var webhookUrl = "https://n8n.voleadam.hu/webhook-test/e7a02344-2541-48da-a966-b4607377ec18";
+            var webhookUrl = "https://n8n.voleadam.hu/webhook/e7a02344-2541-48da-a966-b4607377ec18";
 
             var formData = new FormData(newsletterForm);
             var urlEncodedData = new URLSearchParams(formData).toString();
