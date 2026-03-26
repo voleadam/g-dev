@@ -971,6 +971,16 @@ figcaption {
   text-transform: uppercase;
   width: 100%;
 }
+.custom-text-content{
+  font-family: var(--_typography---font-family--headers);
+  color: var(--text-color--text-primary);
+  font-size: var(  --_typography---h6--font-size);
+  line-height: var(--_typography---xl--line-height);
+  font-weight: var(--_typography---font-weight--semibold);
+  letter-spacing: 0.02rem;
+  text-transform: uppercase;
+  width: 100%;
+}
 
 .max-width-xxlarge {
   width: 100%;
